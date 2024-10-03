@@ -160,7 +160,7 @@ export class AppComponent implements OnInit {
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
     return this.filteredEmployees.slice(start, end);
-  }  
+  }
 
   totalPages() {
     return Math.ceil(this.filteredEmployees.length / this.pageSize);
