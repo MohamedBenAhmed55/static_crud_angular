@@ -94,7 +94,9 @@
         <td>{{ employee.salary || 'N/A' }}</td>
         <td>{{ employee.contactNumber || 'N/A' }}</td>
         <td>{{ employee.email || 'N/A' }}</td>
-        <td>{{ employee.address || 'N/A' }}</td>
+        <td [title]="employee.address">
+          {{ employee.address ? (employee.address.length > 11 ? (employee.address | slice:0:11) + '...' : employee.address) : 'N/A' }}
+        </td>
         <td>
           <button class="btn btn-delete" (click)="deleteEmployee(i + (currentPage - 1) * pageSize)">Delete</button>
         </td>

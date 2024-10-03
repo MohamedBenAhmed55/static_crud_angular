@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms'; // Import FormsModule for ngModel
-import { CommonModule } from '@angular/common'; // Import CommonModule for *ngFor
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { EmployeeService } from './services/employee.service';
 
@@ -62,7 +62,7 @@ export class AppComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       address: ['', Validators.required],
     });
-   }
+  }
 
   ngOnInit(): void {
     this.fetchEmployees();
@@ -93,7 +93,7 @@ export class AppComponent implements OnInit {
 
   isEditMode: boolean = false;
   currentIndex: number | null = null;
-  sortColumn: keyof Employee | 'index' = 'email';
+  sortColumn: keyof Employee | 'index' = 'firstName';
   sortDirection: 'asc' | 'desc' = 'asc';
 
   // Pagination variables
@@ -116,7 +116,7 @@ export class AppComponent implements OnInit {
   filteredEmployees: Employee[] = [...this.employees];
 
   onSubmit() {
-    this.submitted = true; 
+    this.submitted = true;
 
     if (this.employeeForm.valid) {
       try {
@@ -127,16 +127,16 @@ export class AppComponent implements OnInit {
         };
         this.employees.push(newEmployee);
         this.employeeForm.reset();
-        this.submitted = false; 
+        this.submitted = false;
         alert("Employee successfully added!");
         this.applyFilter();
         this.sortData(this.sortColumn);
       } catch (error) {
-        console.log(error);
+        alert("Operation Failed");
       }
     }
   }
-  
+
 
   deleteEmployee(index: number) {
     const realIndex = this.employees.indexOf(this.filteredEmployees[index]);
@@ -183,9 +183,8 @@ export class AppComponent implements OnInit {
 
   // Pagination logic
   paginatedEmployees() {
-    const start : number = (this.currentPage - 1) * this.pageSize;
-    const end : number = start + Number(this.pageSize);
-    console.log("start and end",start, end)
+    const start: number = (this.currentPage - 1) * this.pageSize;
+    const end: number = start + Number(this.pageSize);
     return this.filteredEmployees.slice(start, end);
   }
 
