@@ -1,28 +1,56 @@
 <div class="container">
   <h1>Employee Management</h1>
 
-  <!-- Button to trigger the modal -->
-  <!-- <button class="btn btn-primary" (click)="openModal()">Add New Employee</button> -->
-
-  <!-- Modal Structure -->
   <div class="content">
     <h2>Add New Employee</h2>
 
-    <form class="form-inline" (submit)="onSubmit()">
-      <input type="text" placeholder="First Name" [(ngModel)]="newEmployee.firstName" name="firstName" required />
-      <input type="text" placeholder="Last Name" [(ngModel)]="newEmployee.lastName" name="lastName" required />
-      <input type="date" placeholder="Date of Birth" [(ngModel)]="newEmployee.dob" name="dob" required />
-      <input type="number" placeholder="Age" [(ngModel)]="newEmployee.age" name="age" required />
-      <input type="text" placeholder="Salary" [(ngModel)]="newEmployee.salary" name="salary" />
-      <input type="text" placeholder="Contact Number" [(ngModel)]="newEmployee.contactNumber" name="contactNumber" />
-      <input type="text" placeholder="Email" [(ngModel)]="newEmployee.email" name="email" />
-      <input type="text" placeholder="Address" [(ngModel)]="newEmployee.address" name="address" />
+    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+      <input type="text" placeholder="First Name" formControlName="firstName" required />
+      <div *ngIf="submitted && employeeForm.get('firstName')?.invalid">
+        <small>First name is required.</small>
+      </div>
+    
+      <input type="text" placeholder="Last Name" formControlName="lastName" required />
+      <div *ngIf="submitted && employeeForm.get('lastName')?.invalid">
+        <small>Last name is required.</small>
+      </div>
+    
+      <input type="date" placeholder="Date of Birth" formControlName="dob" required />
+      <div *ngIf="submitted && employeeForm.get('dob')?.invalid">
+        <small>Date of birth is required.</small>
+      </div>
+    
+      <input type="number" placeholder="Age" formControlName="age" required />
+      <div *ngIf="submitted && employeeForm.get('age')?.invalid">
+        <small *ngIf="employeeForm.get('age')?.errors?.['required']">Age is required.</small>
+        <small *ngIf="employeeForm.get('age')?.errors?.['min']">Age must be a positive number.</small>
+      </div>
+    
+      <input type="text" placeholder="Salary" formControlName="salary" required />
+      <div *ngIf="submitted && employeeForm.get('salary')?.invalid">
+        <small>Salary is required.</small>
+      </div>
+    
+      <input type="text" placeholder="Contact Number" formControlName="contactNumber" required />
+      <div *ngIf="submitted && employeeForm.get('contactNumber')?.invalid">
+        <small>Contact number is required.</small>
+      </div>
+    
+      <input type="text" placeholder="Email" formControlName="email" required />
+      <div *ngIf="submitted && employeeForm.get('email')?.invalid">
+        <small *ngIf="employeeForm.get('email')?.errors?.['required']">Email is required.</small>
+        <small *ngIf="employeeForm.get('email')?.errors?.['email']">Invalid email format.</small>
+      </div>
+    
+      <input type="text" placeholder="Address" formControlName="address" required />
+      <div *ngIf="submitted && employeeForm.get('address')?.invalid">
+        <small>Address is required.</small>
+      </div>
+    
       <button type="submit" class="btn">Add Employee</button>
     </form>
+    
   </div>
-
-
-
 
   <table class="styled-table">
     <thead>
@@ -38,7 +66,7 @@
         <th>Actions</th>
       </tr>
       <tr>
-        <th></th> <!-- Skip the index column -->
+        <th></th> 
         <th><input class="small-input" type="text" [(ngModel)]="filters.name" placeholder="Filter by name"
             (input)="applyFilter()" /></th>
         <th><input class="small-input" type="text" [(ngModel)]="filters.age" placeholder="Filter by age"
@@ -53,7 +81,7 @@
             (input)="applyFilter()" /></th>
         <th><input class="small-input" type="text" [(ngModel)]="filters.address" placeholder="Filter by address"
             (input)="applyFilter()" /></th>
-        <th></th> <!-- Skip the actions column -->
+        <th></th> 
       </tr>
 
     </thead>

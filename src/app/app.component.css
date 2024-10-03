@@ -7,14 +7,14 @@
 
 @media (max-width: 768px) {
   .container {
-    width: 95%; /* Adjust to almost full screen on tablets */
+    width: 95%; 
     margin: 30px auto;
   }
 }
 
 @media (max-width: 480px) {
   .container {
-    width: 100%; /* Full-width on mobile devices */
+    width: 100%; 
     margin: 20px auto;
   }
 }
@@ -40,11 +40,11 @@ input {
   }
 
   input {
-    width: 100%; /* Full width input on mobile */
+    width: 100%; 
   }
 
   button.btn {
-    width: 100%; /* Full width button on mobile */
+    width: 100%; 
   }
 }
 
@@ -101,7 +101,7 @@ button.btn:hover {
 
 @media (max-width: 768px) {
   .styled-table {
-    font-size: 16px; /* Adjust font size on tablets */
+    font-size: 16px; 
   }
 
   .styled-table th, .styled-table td {
@@ -111,7 +111,7 @@ button.btn:hover {
 
 @media (max-width: 480px) {
   .styled-table {
-    font-size: 14px; /* Smaller font size for mobile */
+    font-size: 14px; 
   }
 
   .styled-table th, .styled-table td {
@@ -171,6 +171,7 @@ button.btn-delete:hover {
   cursor: not-allowed;
 }
 
+/* Mobile devices */
 @media (max-width: 768px) {
   .pagination-controls {
     display: flex;
@@ -181,7 +182,7 @@ button.btn-delete:hover {
 
 @media (max-width: 480px) {
   .pagination-controls button {
-    width: 100%; /* Full width buttons on mobile */
+    width: 100%; 
     margin: 10px 0;
   }
 }
@@ -190,4 +191,8 @@ button.btn-delete:hover {
   width: 90px; 
   padding: 5px;
   font-size: 14px; 
+}
+
+small{
+  color: red;
 }

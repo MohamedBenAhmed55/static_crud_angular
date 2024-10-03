@@ -1,9 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // Import FormsModule for ngModel
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms'; // Import FormsModule for ngModel
 import { CommonModule } from '@angular/common'; // Import CommonModule for *ngFor
 import { HttpClientModule } from '@angular/common/http';
 import { EmployeeService } from './services/employee.service';
+
+import { z } from 'zod';
+
+const employeeSchema = z.object({
+  firstName: z.string().nonempty(),
+  lastName: z.string().nonempty(),
+  dob: z.string().nonempty(),
+  age: z.number().min(0),
+  salary: z.string().nonempty(),
+  contactNumber: z.string().nonempty(),
+  email: z.string().email(),
+  address: z.string().nonempty(),
+});
+
 
 interface Employee {
   id: number | string | null;
@@ -22,10 +36,11 @@ interface Employee {
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet, 
-    FormsModule,   
+    RouterOutlet,
+    FormsModule,
     CommonModule,
-    HttpClientModule 
+    HttpClientModule,
+    ReactiveFormsModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
@@ -33,33 +48,47 @@ interface Employee {
 })
 
 export class AppComponent implements OnInit {
+  employeeForm: FormGroup;
+  submitted: boolean = false;
 
-  constructor(private employeeService: EmployeeService) {}
+  constructor(private employeeService: EmployeeService, private fb: FormBuilder) {
+    this.employeeForm = this.fb.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      dob: ['', Validators.required],
+      age: ['', [Validators.required, Validators.min(0)]],
+      salary: ['', Validators.required],
+      contactNumber: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      address: ['', Validators.required],
+    });
+   }
 
   ngOnInit(): void {
     this.fetchEmployees();
   }
 
+  // Fetching
   fetchEmployees(): void {
     this.employeeService.getEmployees().subscribe((data: Employee[]) => {
       this.employees = data;
-      this.filteredEmployees = [...this.employees]; 
+      this.filteredEmployees = [...this.employees];
     });
   }
 
   employees: Employee[] = [];
-  
-  newEmployee: Employee = { 
-    id: null, 
-    age: null, 
-    dob: null, 
-    email: null, 
-    salary: null, 
-    address: null, 
-    imageUrl: null, 
-    lastName: null, 
-    firstName: null, 
-    contactNumber: null 
+
+  newEmployee: Employee = {
+    id: null,
+    age: null,
+    dob: null,
+    email: null,
+    salary: null,
+    address: null,
+    imageUrl: null,
+    lastName: null,
+    firstName: null,
+    contactNumber: null
   };
 
   isEditMode: boolean = false;
@@ -68,11 +97,11 @@ export class AppComponent implements OnInit {
   sortDirection: 'asc' | 'desc' = 'asc';
 
   // Pagination variables
-  pageSize: number = 10; 
+  pageSize: number = 10;
   currentPage: number = 1;
 
   // Filter variable
-  filterText: string = ''; 
+  filterText: string = '';
 
   filters: any = {
     name: '',
@@ -84,38 +113,35 @@ export class AppComponent implements OnInit {
     address: ''
   };
 
-  filteredEmployees: Employee[] = [...this.employees]; // Filtered list of employees
+  filteredEmployees: Employee[] = [...this.employees];
 
   onSubmit() {
-    if (this.isEditMode && this.currentIndex !== null) {
-      this.employees[this.currentIndex] = { ...this.newEmployee };
-      this.isEditMode = false;
-      this.currentIndex = null;
-    } else {
-      this.employees.push({ ...this.newEmployee });
+    this.submitted = true; 
+
+    if (this.employeeForm.valid) {
+      try {
+        const newEmployee: Employee = {
+          id: null,
+          imageUrl: null,
+          ...employeeSchema.parse(this.employeeForm.value),
+        };
+        this.employees.push(newEmployee);
+        this.employeeForm.reset();
+        this.submitted = false; 
+        alert("Employee successfully added!");
+        this.applyFilter();
+        this.sortData(this.sortColumn);
+      } catch (error) {
+        console.log(error);
+      }
     }
-    // Reset the form after submission
-    this.newEmployee = {
-      id: null,
-      age: null,
-      dob: null,
-      email: null,
-      salary: null,
-      address: null,
-      imageUrl: null,
-      lastName: null,
-      firstName: null,
-      contactNumber: null
-    };
-    this.applyFilter(); 
-    this.sortData(this.sortColumn); 
-    this.closeModal();
   }
+  
 
   deleteEmployee(index: number) {
     const realIndex = this.employees.indexOf(this.filteredEmployees[index]);
     this.employees.splice(realIndex, 1);
-    this.applyFilter(); 
+    this.applyFilter();
   }
 
   sortData(column: keyof Employee | 'index') {
@@ -157,8 +183,9 @@ export class AppComponent implements OnInit {
 
   // Pagination logic
   paginatedEmployees() {
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
+    const start : number = (this.currentPage - 1) * this.pageSize;
+    const end : number = start + Number(this.pageSize);
+    console.log("start and end",start, end)
     return this.filteredEmployees.slice(start, end);
   }
 
@@ -169,17 +196,19 @@ export class AppComponent implements OnInit {
   nextPage() {
     if (this.currentPage < this.totalPages()) {
       this.currentPage++;
+      this.updatePagination();
     }
   }
 
   prevPage() {
     if (this.currentPage > 1) {
       this.currentPage--;
+      this.updatePagination();
     }
   }
 
   onPageSizeChange() {
-    this.currentPage = 1; 
+    this.currentPage = 1;
     this.updatePagination();
   }
 
@@ -201,23 +230,10 @@ export class AppComponent implements OnInit {
       const emailMatch = employee.email?.toLowerCase().includes(this.filters.email.toLowerCase());
       const addressMatch = employee.address?.toLowerCase().includes(this.filters.address.toLowerCase());
 
-      // Filter based on all column matches
       return nameMatch && ageMatch && dobMatch && salaryMatch && contactNumberMatch && emailMatch && addressMatch;
     });
 
-    this.currentPage = 1; 
+    this.currentPage = 1;
     this.updatePagination();
-  }
-
-  isModalOpen = false;
-
-  // Open modal
-  openModal() {
-    this.isModalOpen = true;
-  }
-
-  // Close modal
-  closeModal() {
-    this.isModalOpen = false;
   }
 }
